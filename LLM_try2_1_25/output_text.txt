@@ -1,0 +1,17 @@
+**Final Rule:**
+
+1. **Inter-species Interaction**: In all images, there is a direct interaction between the cat and the child. The proximity and attention both characters give to each other suggest they are interacting in a friendly manner.
+
+**Eliminated Rules:**
+
+2. **Color Coordination**: The backgrounds of the images have a cohesive color palette that complements the colors of the cat and the child's clothing. The mix of natural and neutral tones set a harmonious scene for the subjects.  
+   *Explanation*: Although present in some negative examples, it does not distinctly separate positive examples as it can occur in images showing conflict.
+
+3. **Clothing & Accessories**: Both the child and the cat in the images are wearing clothing, showing that they are dressed suitably for a casual or playful environment. The cat is dressed in a sweater in each image, hinting at a thematic or playful element.
+   *Explanation*: In positive images clothing seems casual and playful, but this doesn't exclusively relate to positive interactions, as it might exist in negative examples without being a defining characteristic.
+
+4. **Environmental Setting**: The images are shot in bright, natural light settings. The backgrounds include outdoor elements such as grass and flowers, indicating a preference for capturing moments in nature or open spaces.  
+   *Explanation*: While positive examples occur in natural settings, this is not enough to negate the presence of negative expressions, as they might share this setting.
+
+5. **Focus & Framing**: Each image is composed to capture the expressions and physical details of the cat, with particular attention to their positioning. Despite the blurred face of the child, there’s a purposeful framing to highlight the interaction between the child and the cat.  
+   *Explanation*: This rule regarding composition can apply to both positive and negative expressions because mindful framing and capture can still highlight a non-friendly interaction.
