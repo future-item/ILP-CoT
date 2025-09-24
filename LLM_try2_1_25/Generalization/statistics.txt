@@ -1,7 +1,0 @@
-Spatial Relation Tasks: 1，1
-
-Attribute Association Tasks: 1，1，1，1，1，1，1，1，1
-
-Role Interaction Tasks: 1，1，1，1，1，1
-
-Environmental Response Tasks: 1，1，1，1，1
