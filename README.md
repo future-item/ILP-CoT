@@ -1,4 +1,4 @@
-# ILP-CoT: Inductive Logical Rule Induction with ILP‑constrained Chain‑of‑Thought (reference implementation)
+# Abductive Visual Rule Induction by Bridging Inductive Logic Programming and Multimodal Large Language Models (Reference Implementation)
 
 > This repo demonstrates **ILP‑CoT** — integrating **Inductive Logic Programming (ILP)** into a custom Chain‑of‑Thought (CoT) pipeline to induce **verifiable, interpretable rules** from a few **positive/negative** examples. The key ideas are: build **meta‑rules** to constrain hypothesis space and run a **failure‑reflection loop** to correct perception/abduction errors; ILP then performs **formal verification** against positives/negatives to curb hallucinations.
 ---
