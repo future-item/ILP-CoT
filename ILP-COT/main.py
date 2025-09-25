@@ -1,9 +1,10 @@
-import argparse
+import re
 import tools
 import prompt
 import prolog
-import preparation
+import argparse
 import query_GPT
+import preparation
 
 PROLOG_TIMEOUT_MESSAGE = "'Query exceeded timeout of 100 seconds.'"
 
@@ -11,46 +12,71 @@ def run_learning_process(num_classes: int, max_attempts: int):
     for attempt in range(1, max_attempts + 1):
         print(f"--- Starting Learning Attempt {attempt}/{max_attempts} ---")
 
-        device, pos_images_path, neg_images_path, pos_filenames, neg_filenames, target_classes, target_num, choose_class = preparation.preparation(
-            num_classes)
+        device, pos_images_path, neg_images_path, pos_filenames, neg_filenames, target_classes, target_num, choose_class = preparation.preparation(num_classes)
 
-        hypothesis_prompt = prompt.hypothesis_space()
-        hypothesis_text = query_GPT.image_to_text(pos_images_path, pos_filenames, hypothesis_prompt)
-        print("\nGenerated Hypothesis Space:")
-        print(hypothesis_text)
+        default = prompt.Image_to_text(target_classes, choose_class, target_num, target_classes[choose_class])
+        default_capturer = query_GPT.image_to_text(pos_images_path, pos_filenames, default)
 
-        capture_prompt_pos = prompt.extract_capture_from_hypothesis_space(hypothesis_text)
+        facts_proposal = prompt.facts_proposal_space(default_capturer)
+        facts_proposal_text = query_GPT.image_to_text(pos_images_path, pos_filenames, facts_proposal)
+
+        capture_prompt_pos = prompt.extract_capture_from_proposal_space(facts_proposal_text)
         captured_info_pos = query_GPT.image_to_text(pos_images_path, pos_filenames, capture_prompt_pos)
-        print("\nCaptured Positive Info:")
-        print(captured_info_pos)
 
         delete_prompt_pos = prompt.delete_wrong_info(captured_info_pos)
         filtered_pos_text = query_GPT.image_to_text(pos_images_path, pos_filenames, delete_prompt_pos)
         filtered_pos = tools.extract_prolog_content(filtered_pos_text)
-        print("\nFiltered Positive Features:")
-        print(filtered_pos)
 
-        capture_prompt_neg = prompt.extract_capture_from_hypothesis_space_neg(hypothesis_text)
+        capture_prompt_neg = prompt.extract_capture_from_proposal_space_neg(facts_proposal_text)
         captured_info_neg = query_GPT.image_to_text(neg_images_path, neg_filenames, capture_prompt_neg)
-        print("\nCaptured Negative Info:")
-        print(captured_info_neg)
 
         delete_prompt_neg = prompt.delete_wrong_info(captured_info_neg)
         filtered_neg_text = query_GPT.image_to_text(neg_images_path, neg_filenames, delete_prompt_neg)
         filtered_neg = tools.extract_prolog_content(filtered_neg_text)
-        print("\nFiltered Negative Features:")
-        print(filtered_neg)
 
-        meta_text_prompt = prompt.Build_meta_rules_prepration(hypothesis_text)
+        meta_text_prompt = prompt.Build_meta_rules_prepration(facts_proposal_text)
         meta_rules_text = query_GPT.text_to_text(meta_text_prompt)
         meta_rules = tools.extract_metarules(meta_rules_text)
-        print("\nGenerated Meta-Rules:")
-        print(meta_rules)
 
         prolog_dir_content = prompt.Build_PL_file(filtered_pos, filtered_neg, meta_rules)
         prolog_answer = prolog.capture_prolog_output(prolog_dir_content)
-        print("\nRaw Prolog Answer:")
-        print(prolog_answer)
+
+        if (not prolog_answer) or (prolog_answer == PROLOG_TIMEOUT_MESSAGE):
+            predicates = re.findall(r'([a-zA-Z0-9_]+\([^)]*\))\.', filtered_pos)
+            temp_list = []
+            for predicate in predicates:
+                check_prompt = prompt.check_facts(predicate)
+                Binary_answer = query_GPT.image_to_text(pos_images_path, pos_filenames, check_prompt)
+                temp_list.append(Binary_answer)
+            filtered_list2 = [item for flag, item in zip(temp_list, predicates) if flag == 'Yes']
+            filtered_pos = "\n".join(f"{item}." for item in filtered_list2)
+            prolog_dir_content = prompt.Build_PL_file(filtered_pos, filtered_neg, meta_rules)
+            prolog_answer = prolog.capture_prolog_output(prolog_dir_content)
+
+        if (not prolog_answer) or (prolog_answer == PROLOG_TIMEOUT_MESSAGE):
+            facts_proposal = prompt.facts_proposal_space(default_capturer)
+            facts_proposal_text = query_GPT.image_to_text(pos_images_path, pos_filenames, facts_proposal)
+
+            capture_prompt_pos = prompt.extract_capture_from_proposal_space(facts_proposal_text)
+            captured_info_pos = query_GPT.image_to_text(pos_images_path, pos_filenames, capture_prompt_pos)
+
+            delete_prompt_pos = prompt.delete_wrong_info(captured_info_pos)
+            filtered_pos_text = query_GPT.image_to_text(pos_images_path, pos_filenames, delete_prompt_pos)
+            filtered_pos = tools.extract_prolog_content(filtered_pos_text)
+
+            capture_prompt_neg = prompt.extract_capture_from_proposal_space_neg(facts_proposal_text)
+            captured_info_neg = query_GPT.image_to_text(neg_images_path, neg_filenames, capture_prompt_neg)
+
+            delete_prompt_neg = prompt.delete_wrong_info(captured_info_neg)
+            filtered_neg_text = query_GPT.image_to_text(neg_images_path, neg_filenames, delete_prompt_neg)
+            filtered_neg = tools.extract_prolog_content(filtered_neg_text)
+
+            meta_text_prompt = prompt.Build_meta_rules_prepration(facts_proposal_text)
+            meta_rules_text = query_GPT.text_to_text(meta_text_prompt)
+            meta_rules = tools.extract_metarules(meta_rules_text)
+
+            prolog_dir_content = prompt.Build_PL_file(filtered_pos, filtered_neg, meta_rules)
+            prolog_answer = prolog.capture_prolog_output(prolog_dir_content)
 
         if not prolog_answer or prolog_answer == PROLOG_TIMEOUT_MESSAGE:
             print(f"Prolog query failed or timed out on attempt {attempt}. Retrying...")
@@ -60,7 +86,6 @@ def run_learning_process(num_classes: int, max_attempts: int):
         print("\nProcessed Prolog Answer:")
         print(processed_answer)
 
-        nlp_answer = ""
         if not processed_answer:
             final_answer_prompt = prompt.final_answer(processed_answer)
             final_answer_rule = query_GPT.image_to_text(pos_images_path, pos_filenames, final_answer_prompt)
