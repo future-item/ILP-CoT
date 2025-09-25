@@ -1,0 +1,1 @@
+The mother is teaching the child to practice the piano (key rule: mother → teaches child, child → plays piano)

@@ -1,0 +1,1 @@
+A cow is plowing the field (key rule: cow → plow field)

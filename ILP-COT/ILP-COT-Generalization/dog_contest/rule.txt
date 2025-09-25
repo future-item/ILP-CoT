@@ -1,0 +1,1 @@
+In the dog competition, the smaller dog wins the gold medal, while the bigger dog wins the silver or bronze medal (key rule: smaller size → wins gold medal)

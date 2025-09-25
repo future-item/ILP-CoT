@@ -1,0 +1,1 @@
+The boy is holding a watermelon, and the girl is holding an apple (key rule: boy → watermelon, girl → apple)

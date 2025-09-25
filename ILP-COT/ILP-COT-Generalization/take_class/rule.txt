@@ -1,0 +1,1 @@
+The teacher is wearing formal attire, and the students are wearing school uniforms. The teacher stands while teaching, and the students sit while listening (key rule: teacher → standing, formal attire; students → school uniform, sitting)
