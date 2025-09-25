@@ -18,12 +18,11 @@ from collections import Counter
 import string
 
 
-prolog_dir = "..."
-output_dir = "..."
-
+prolog_dir = ""
+output_dir = ""
 def call_chat(prompt_messages):
     openai_api_key = "EMPTY"
-    openai_api_base = "..."
+    openai_api_base = ""
     client = OpenAI(
         api_key=openai_api_key,
         base_url=openai_api_base,
@@ -700,7 +699,7 @@ def delete_wrong_info(input):
     return prompt
 
 
-def extract_capture_from_hypothesis_space_neg(input):
+def extract_capture_from_proposal_space_neg(input):
     pattern = r":-\s*(.*?)\."
     matches = re.findall(pattern, input, re.DOTALL)
     knowledge_list = [match.strip().replace("\n", " ") for match in matches]
@@ -777,7 +776,7 @@ def extract_capture_from_hypothesis_space_neg(input):
 
     return prompt
 
-def extract_capture_from_hypothesis_space(input):
+def extract_capture_from_proposal_space(input):
     pattern = r":-\s*(.*?)\."
     matches = re.findall(pattern, input, re.DOTALL)
     knowledge_list = [match.strip().replace("\n", " ") for match in matches]
@@ -825,9 +824,12 @@ def extract_capture_from_hypothesis_space(input):
     return prompt
 
 
-def hypothesis_space():
+def facts_proposal_space(default_capturer):
     prompt = (
-        f"""the images has subjects [{subjects_names}], there is a rule consistent cross these images , we are going to find that rule. 
+        f"""
+        {default_capturer} is proposed words that may appear in images.
+        
+        the images has subjects [{subjects_names}], there is a rule consistent cross these images , we are going to find that rule. 
         Now based on all images make five descriptions, make each description as concrete(specific) as possible.
         Write down these descriptions in prolog form ( Hypothesis(subjects):- description0(subject),description1(subject),... ).
         An Example with subject (Cat, Dog):
@@ -1477,4 +1479,9 @@ def rules_to_nl(rules):
         there is no \"if-else\" statement in the description.
         Now:
         translate all rules to natural language, and separately output them, the answer only includes a list of separate natural language description """
+    return prompt
+
+def check_facts(facts):
+    prompt = f"""Does the facts [{facts}] really shows in all images? , return me Yes if it shows in all images, 
+    return me No is any of the images is do not have the facts"""
     return prompt

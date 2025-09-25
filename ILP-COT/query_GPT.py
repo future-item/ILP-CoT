@@ -2,90 +2,105 @@ import os
 import time
 import json
 import requests
-from typing import List, Dict, Any
-
-GPT_IMAGE_API_KEY = os.getenv('GPT_IMAGE_API_KEY', 'YOUR_IMAGE_API_KEY_HERE')
-GPT_TEXT_API_KEY = os.getenv('GPT_TEXT_API_KEY', 'YOUR_TEXT_API_KEY_HERE')
-
-API_URL = "YOUR_API_URL"
-MODEL_NAME = "gpt-4o-2024-11-20"
-MAX_TOKENS = 2000
-MAX_RETRIES = 3
-RETRY_DELAY_SECONDS = 5
-REQUEST_TIMEOUT_SECONDS = 100
 
 
-def _post_request(payload: Dict[str, Any], api_key: str) -> str:
+max_retries = 3
+retry_delay = 5  # seconds
+def image_to_text(input_images_path, image_filenames, prompt_text):
     headers = {
-        'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json',
+        'Authorization': '',
+        'Content-Type': '',
     }
+    url = ""
 
-    for attempt in range(MAX_RETRIES):
+    messages = [{"role": "user", "content": [{"type": "text", "text": prompt_text}]}]
+
+    for image_filename in image_filenames:
+        image_url = os.path.join(input_images_path, image_filename)
+        print("Generated image URL:", image_url)
+        messages[0]["content"].append({
+            "type": "image_url",
+            "image_url": {"url": image_url}
+        })
+
+    payload = json.dumps({
+        "model": "gpt-4o-2024-11-20",
+        "messages": messages,
+        "max_tokens": 2000
+    })
+
+
+    for attempt in range(max_retries):
         try:
-            response = requests.post(
-                API_URL,
-                headers=headers,
-                data=json.dumps(payload),
-                timeout=REQUEST_TIMEOUT_SECONDS
-            )
+            response = requests.post(url, headers=headers, data=payload, timeout=100)
 
             if response.status_code == 200:
                 response_data = response.json()
+
                 choices = response_data.get("choices", [])
-                if choices and "message" in choices[0] and "content" in choices[0]["message"]:
+                if choices:
                     output_text = choices[0]["message"]["content"]
-                    with open("output_text.txt", "w", encoding="utf-8") as f:
-                        f.write(output_text)
+                    with open("output_text.txt", "w", encoding="utf-8") as file:
+                        file.write(output_text)
                     return output_text
                 else:
-                    print("API Error: Response format is invalid or choices are empty.")
+                    print("No content returned in choices.")
                     return ""
             else:
-                print(f"API Error: Received status code {response.status_code}")
-                print(f"Response body: {response.text}")
+                print("Error:", response.status_code)
+                print("Response:", response.text)
 
         except requests.exceptions.RequestException as e:
-            print(f"Request failed on attempt {attempt + 1}/{MAX_RETRIES}: {e}")
-            if attempt < MAX_RETRIES - 1:
-                print(f"Retrying in {RETRY_DELAY_SECONDS} seconds...")
-                time.sleep(RETRY_DELAY_SECONDS)
+            print(f"Request failed on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
 
-    print("All retry attempts failed. Returning empty string.")
+    print("All retry attempts failed.")
     return ""
 
-def image_to_text(input_images_path: str, image_filenames: List[str], prompt_text: str) -> str:
-    if not GPT_IMAGE_API_KEY or 'YOUR_IMAGE_API_KEY_HERE' in GPT_IMAGE_API_KEY:
-        print("Error: Image API key is not configured. Please set the GPT_IMAGE_API_KEY environment variable.")
-        return ""
-
-    messages = [{"role": "user", "content": [{"type": "text", "text": prompt_text}]}]
-    for filename in image_filenames:
-        image_path = os.path.join(input_images_path, filename)
-        messages[0]["content"].append({
-            "type": "image_url",
-            "image_url": {"url": image_path}
-        })
-
-    payload = {
-        "model": MODEL_NAME,
-        "messages": messages,
-        "max_tokens": MAX_TOKENS
+def text_to_text(prompt_text):
+    headers = {
+        'Authorization': '',
+        'Content-Type': '',
     }
+    url = ""
 
-    return _post_request(payload, GPT_IMAGE_API_KEY)
+    messages = [
+        {"role": "user", "content": prompt_text}
+    ]
 
-
-def text_to_text(prompt_text: str) -> str:
-    if not GPT_TEXT_API_KEY or 'YOUR_TEXT_API_KEY_HERE' in GPT_TEXT_API_KEY:
-        print("Error: Text API key is not configured. Please set the GPT_TEXT_API_KEY environment variable.")
-        return ""
-
-    messages = [{"role": "user", "content": prompt_text}]
-    payload = {
-        "model": MODEL_NAME,
+    payload = json.dumps({
+        "model": "gpt-4o-2024-11-20",
         "messages": messages,
-        "max_tokens": MAX_TOKENS
-    }
+        "max_tokens": 2000
+    })
 
-    return _post_request(payload, GPT_TEXT_API_KEY)
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(url, headers=headers, data=payload, timeout=60)
+
+            if response.status_code == 200:
+                response_data = response.json()
+
+                choices = response_data.get("choices", [])
+                if choices:
+                    output_text = choices[0]["message"]["content"]
+                    with open("output_text.txt", "w", encoding="utf-8") as file:
+                        file.write(output_text)
+                    return output_text
+                else:
+                    print("No content returned in choices.")
+                    return ""
+            else:
+                print("Error:", response.status_code)
+                print("Response:", response.text)
+
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+
+    print("All retry attempts failed.")
+    return ""
