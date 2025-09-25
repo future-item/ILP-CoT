@@ -4,7 +4,8 @@ import os
 import re
 
 
-TEMP_SCRIPT_NAME = 'temp_prolog_query.py'
+TEMP_SCRIPT_NAME = ''
+
 def capture_prolog_output(prolog_file_path: str, timeout: int = 100) -> str:
     script_content = f'''
 from pyswip import Prolog

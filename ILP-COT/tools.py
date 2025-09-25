@@ -14,10 +14,10 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Union
 
-POSITIVE_SIMILARITY_WEIGHT = 0.3
-NEGATIVE_SIMILARITY_WEIGHT = 0.7
-URL_POS = '...'
-URL_NEG = '...'
+POSITIVE_SIMILARITY_WEIGHT = 0.2
+NEGATIVE_SIMILARITY_WEIGHT = 0.8
+URL_POS = ' '
+URL_NEG = ' '
 _ROW_RE = re.compile(r"\s*\[[\d,\s-]+\]\s*,?\s*$")
 _MATRIX_KEYWORDS = ["final output", "final result", "test_output"]
 _NAIVE_META = "[[P, Q], [P, A], [[Q, A]]]"
@@ -30,6 +30,7 @@ _PRED_PAT = re.compile(r"\s*([a-zA-Z0-9_]+\(.*?\))\s*")
 _TOKEN_RE = re.compile(r"\b[A-Za-z]+\b")
 _ABLATION_OUT_DIR = "./result/ablation"
 _ABLATION_OUT_FILE = "results.json"
+
 
 
 def _printed_matrices(text: str) -> List[Tuple[int, Any]]:

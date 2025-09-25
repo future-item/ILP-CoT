@@ -2,6 +2,7 @@ import torch
 import re
 from typing import List, Dict, Any, Tuple
 
+
 def preparation(index: int) -> Tuple[str, str, str, List[str], List[str], List[List[str]], List[List[int]], int]:
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
