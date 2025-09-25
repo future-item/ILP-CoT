@@ -5,7 +5,7 @@
 
 The entry point is `main.py`. At a high level the loop does:
 
-1) Prepare device/paths and select target classes. fileciteturn2file6L15-L19  
+1) Prepare device/paths and select target classes.   
 2) Ask an MLLM to **propose capture tokens & facts**, then delete noisy facts → extract Prolog facts for **positives** and **negatives**. 
 3) Ask the MLLM to **generalize concrete rules into meta‑rules**, then **build a Prolog program** from facts + meta‑rules and call the Prolog backend. 4) If Prolog times out or fails, first **re‑verify each predicate** on positives and rebuild; if still failing, **re‑propose tokens/facts** for both pos/neg and retry. 
 5) Post‑process Prolog rules, convert to **natural language** (or pick with CLIP when multiple). 6) Control flow via `--max-attempts`; Prolog timeout string is `"Query exceeded timeout of 100 seconds."`. 
