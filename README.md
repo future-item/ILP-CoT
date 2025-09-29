@@ -1,4 +1,4 @@
-# Abductive Visual Rule Induction by Bridging Inductive Logic Programming and Multimodal Large Language Models (Reference Implementation)
+# Abductive Visual Rule Induction by Bridging Inductive Logic Programming and Multimodal Large Language Models (arXiv preprint https://arxiv.org/abs/2509.21874 Reference Implementation)
 
 > This repo demonstrates **ILP‑CoT** — integrating **Inductive Logic Programming (ILP)** into a custom Chain‑of‑Thought (CoT) pipeline to induce **verifiable, interpretable rules** from a few **positive/negative** examples. The key ideas are: build **meta‑rules** to constrain hypothesis space and run a **failure‑reflection loop** to correct perception/abduction errors; ILP then performs **formal verification** against positives/negatives to curb hallucinations.
 ---
